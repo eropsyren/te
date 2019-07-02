@@ -2,7 +2,7 @@ use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
 
-const DEFAULT_ROW_LENGTH: usize = 80;
+const DEFAULT_ROW_LENGTH: usize = 120;
 
 pub struct Text {
     rows: Vec<Box<Vec<char>>>,
@@ -28,6 +28,10 @@ impl Text {
         }
 
         Text { rows }
+    }
+
+    pub fn get_row(&self, index: usize) -> Option<&Box<Vec<char>>> {
+        self.rows.get(index)
     }
 
     pub fn get_rows(&self, from: usize, to: usize) -> &[Box<Vec<char>>]  {
