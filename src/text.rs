@@ -2,76 +2,79 @@ use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
 
-const DEFAULT_ROW_LENGTH: usize = 120;
+use crate::line::Line;
 
 pub struct Text {
-    rows: Vec<Box<Vec<char>>>,
+    lines: Vec<Line>,
 }
 
 impl Text {
     pub fn empty() -> Text {
-        Text { rows: vec![] }
+        Text {
+            lines: vec![Line::empty()],
+        }
     }
 
     pub fn from(file: File) -> Text {
-        let mut rows: Vec<Box<Vec<char>>> = vec![];
+        let mut lines: Vec<Line> = vec![];
 
         for line in BufReader::new(file).lines() {
             match line {
                 Ok(line) => {
-                    let line: Vec<char> = line.chars().collect();
-
-                    rows.push(Box::new(line));
+                    lines.push(Line::from_string(line));
                 }
                 _ => (),
             }
         }
 
-        Text { rows }
+        Text { lines }
     }
 
-    pub fn get_row(&self, index: usize) -> Option<&Box<Vec<char>>> {
-        self.rows.get(index)
-    }
-
-    pub fn get_rows(&self, from: usize, to: usize) -> &[Box<Vec<char>>]  {
-        &self.rows[from..to]
-    }
-
-    pub fn append_row(&mut self, row: usize, c: char) {
-        let row_i = row;
-        let row = self.rows.get_mut(row_i);
-
-        match row {
-            Some(row) => match c {
-                '\n' => self
-                    .rows
-                    .insert(row_i, Box::new(Vec::with_capacity(DEFAULT_ROW_LENGTH))),
-                _ => row.push(c),
-            },
-            None => eprint!("No such row: {}", row_i),
+    pub fn get_line(&self, index: usize) -> Option<&str> {
+        match self.lines.get(index) {
+            Some(line) => Some(line.get_content()),
+            None => None,
         }
     }
 
-    pub fn insert(&mut self, row: usize, column: usize, c: char) {
-        let row_i = row;
-        let row = self.rows.get_mut(row_i);
-
-        match row {
-            Some(row) => match c {
-                '\n' => self
-                    .rows
-                    .insert(row_i, Box::new(Vec::with_capacity(DEFAULT_ROW_LENGTH))),
-                _ => row.insert(column, c),
+    pub fn append(&mut self, c: char) {
+        match c {
+            '\n' => self.lines.push(Line::empty()),
+            _ => match self.lines.last_mut() {
+                Some(line) => line.append(c),
+                None => self.lines.push(Line::from_char(c)),
             },
-            None => eprint!("Error inserting character at: {}{}", row_i, column),
+        }
+    }
+
+    pub fn append_at_line(&mut self, idx: usize, c: char) {
+        match self.lines.get_mut(idx) {
+            Some(line) => match c {
+                '\n' => self.lines.insert(idx, Line::empty()),
+                _ => line.append(c),
+            },
+            None => eprint!("No line with index {}", idx),
+        }
+    }
+
+    pub fn insert(&mut self, idx: usize, at: usize, c: char) {
+        match self.lines.get_mut(idx) {
+            Some(line) => match c {
+                '\n' => {
+                    let new_line = line.split(at);
+
+                    self.lines.insert(idx + 1, new_line)
+                }
+                _ => line.insert(idx, c),
+            },
+            None => eprint!("No line with index {}", idx),
         }
     }
 
     pub fn delete(&mut self, row: usize, column: usize) {
         let row_i = row;
 
-        match self.rows.get_mut(row_i) {
+        match self.lines.get_mut(row_i) {
             Some(row) => {
                 row.remove(column);
             }
