@@ -1,3 +1,4 @@
+use std::convert::From;
 use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
@@ -9,25 +10,10 @@ pub struct Text {
 }
 
 impl Text {
-    pub fn empty() -> Text {
+    pub fn empty() -> Self {
         Text {
             lines: vec![Line::empty()],
         }
-    }
-
-    pub fn from(file: File) -> Text {
-        let mut lines: Vec<Line> = vec![];
-
-        for line in BufReader::new(file).lines() {
-            match line {
-                Ok(line) => {
-                    lines.push(Line::from_string(line));
-                }
-                _ => (),
-            }
-        }
-
-        Text { lines }
     }
 
     pub fn get_line(&self, index: usize) -> Option<&str> {
@@ -80,5 +66,22 @@ impl Text {
             }
             None => eprint!("Row {} does not exist", row_i),
         }
+    }
+}
+
+impl From<File> for Text {
+    fn from(file: File) -> Self {
+        let mut lines: Vec<Line> = vec![];
+
+        for line in BufReader::new(file).lines() {
+            match line {
+                Ok(line) => {
+                    lines.push(Line::from_string(line));
+                }
+                _ => (),
+            }
+        }
+
+        Text { lines }
     }
 }
