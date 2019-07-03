@@ -2,6 +2,7 @@ use std::convert::From;
 use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
+use std::iter::IntoIterator;
 
 use crate::line::Line;
 
@@ -16,11 +17,8 @@ impl Text {
         }
     }
 
-    pub fn get_line(&self, index: usize) -> Option<&str> {
-        match self.lines.get(index) {
-            Some(line) => Some(line.get_content()),
-            None => None,
-        }
+    pub fn get_line(&self, index: usize) -> Option<&Line> {
+        self.lines.get(index)
     }
 
     pub fn append(&mut self, c: char) {
@@ -83,5 +81,14 @@ impl From<File> for Text {
         }
 
         Text { lines }
+    }
+}
+
+impl<'a> IntoIterator for &'a Text {
+    type Item = &'a Line;
+    type IntoIter = std::slice::Iter<'a, Line>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.lines.iter()
     }
 }
