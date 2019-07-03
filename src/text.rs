@@ -28,7 +28,7 @@ impl Text {
             '\n' => self.lines.push(Line::empty()),
             _ => match self.lines.last_mut() {
                 Some(line) => line.append(c),
-                None => self.lines.push(Line::from_char(c)),
+                None => self.lines.push(Line::from(c)),
             },
         }
     }
@@ -76,7 +76,7 @@ impl From<File> for Text {
         for line in BufReader::new(file).lines() {
             match line {
                 Ok(line) => {
-                    lines.push(Line::from_string(line));
+                    lines.push(Line::from(line));
                 }
                 _ => (),
             }
