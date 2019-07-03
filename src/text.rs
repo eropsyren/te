@@ -3,6 +3,7 @@ use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
 use std::iter::IntoIterator;
+use std::ops::Deref;
 
 use crate::line::Line;
 
@@ -90,5 +91,13 @@ impl<'a> IntoIterator for &'a Text {
 
     fn into_iter(self) -> Self::IntoIter {
         self.lines.iter()
+    }
+}
+
+impl Deref for Text {
+    type Target = [Line];
+
+    fn deref(&self) -> &Self::Target {
+        &self.lines[..]
     }
 }
