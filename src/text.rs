@@ -9,12 +9,24 @@ use crate::line::Line;
 
 pub struct Text {
     lines: Vec<Line>,
+    lml_idx: Option<usize>,
 }
 
 impl Text {
     pub fn empty() -> Self {
         Text {
             lines: vec![Line::empty()],
+            lml_idx: None,
+        }
+    }
+
+    pub fn get_lml(&self) -> Option<(usize, &Line)> {
+        match self.lml_idx {
+            Some(idx) => match self.lines.get(idx) {
+                Some(line) => Some((idx, line)),
+                None => None,
+            },
+            None => None,
         }
     }
 
@@ -24,10 +36,19 @@ impl Text {
 
     pub fn append(&mut self, c: char) {
         match c {
-            '\n' => self.lines.push(Line::empty()),
+            '\n' => {
+                self.lml_idx = Some(self.lines.len());
+                self.lines.push(Line::empty());
+            }
             _ => match self.lines.last_mut() {
-                Some(line) => line.append(c),
-                None => self.lines.push(Line::from(c)),
+                Some(line) => {
+                    self.lml_idx = Some(self.lines.len() - 1);
+                    line.append(c);
+                }
+                None => {
+                    self.lml_idx = Some(self.lines.len());
+                    self.lines.push(Line::from(c))
+                }
             },
         }
     }
