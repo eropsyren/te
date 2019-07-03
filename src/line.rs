@@ -1,3 +1,5 @@
+use std::convert::From;
+
 const DEFAULT_LINE_LENGTH: usize = 120;
 
 pub struct Line {
@@ -9,18 +11,6 @@ impl Line {
         Line {
             content: String::with_capacity(DEFAULT_LINE_LENGTH),
         }
-    }
-
-    pub fn from_string(string: String) -> Line {
-        Line { content: string }
-    }
-
-    pub fn from_char(c: char) -> Line {
-        let mut line = Line::empty();
-
-        line.append(c);
-
-        line
     }
 
     pub fn get_content(&self) -> &str {
@@ -43,5 +33,21 @@ impl Line {
         Line {
             content: self.content.split_off(at),
         }
+    }
+}
+
+impl From<String> for Line {
+    fn from(string: String) -> Self {
+        Line { content: string }
+    }
+}
+
+impl From<char> for Line {
+    fn from(c: char) -> Self {
+        let mut line = Line::empty();
+
+        line.append(c);
+
+        line
     }
 }
