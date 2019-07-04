@@ -5,10 +5,7 @@ pub struct Cursor {
 
 impl Cursor {
     pub fn new() -> Self {
-        Cursor {
-            x: 0,
-            y: 0,
-        }
+        Cursor { x: 0, y: 0 }
     }
 
     pub fn origin(&mut self) -> &Self {

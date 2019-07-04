@@ -1,4 +1,4 @@
-mod text;
 mod cursor;
+mod text;
 
 pub use text::Text;
