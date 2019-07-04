@@ -9,24 +9,12 @@ use crate::line::Line;
 
 pub struct Text {
     lines: Vec<Line>,
-    lml_idx: Option<usize>,
 }
 
 impl Text {
     pub fn empty() -> Self {
         Text {
             lines: vec![Line::empty()],
-            lml_idx: None,
-        }
-    }
-
-    pub fn get_lml(&self) -> Option<(usize, &Line)> {
-        match self.lml_idx {
-            Some(idx) => match self.lines.get(idx) {
-                Some(line) => Some((idx, line)),
-                None => None,
-            },
-            None => None,
         }
     }
 
@@ -36,19 +24,10 @@ impl Text {
 
     pub fn append(&mut self, c: char) {
         match c {
-            '\n' => {
-                self.lml_idx = Some(self.lines.len());
-                self.lines.push(Line::empty());
-            }
+            '\n' => self.lines.push(Line::empty()),
             _ => match self.lines.last_mut() {
-                Some(line) => {
-                    self.lml_idx = Some(self.lines.len() - 1);
-                    line.append(c);
-                }
-                None => {
-                    self.lml_idx = Some(self.lines.len());
-                    self.lines.push(Line::from(c))
-                }
+                Some(line) => line.append(c),
+                None => self.lines.push(Line::from(c)),
             },
         }
     }
@@ -56,7 +35,7 @@ impl Text {
     pub fn append_at_line(&mut self, idx: usize, c: char) {
         match self.lines.get_mut(idx) {
             Some(line) => match c {
-                '\n' => self.lines.insert(idx, Line::empty()),
+                '\n' => self.lines.insert(idx + 1, Line::empty()),
                 _ => line.append(c),
             },
             None => eprint!("No line with index {}", idx),
@@ -77,14 +56,10 @@ impl Text {
         }
     }
 
-    pub fn delete(&mut self, row: usize, column: usize) {
-        let row_i = row;
-
-        match self.lines.get_mut(row_i) {
-            Some(row) => {
-                row.remove(column);
-            }
-            None => eprint!("Row {} does not exist", row_i),
+    pub fn delete(&mut self, idx: usize, offset: usize) {
+        match self.lines.get_mut(idx) {
+            Some(row) => row.remove(offset),
+            None => eprint!("Row {} does not exist", idx),
         }
     }
 }
@@ -95,9 +70,7 @@ impl From<File> for Text {
 
         for line in BufReader::new(file).lines() {
             match line {
-                Ok(line) => {
-                    lines.push(Line::from(line));
-                }
+                Ok(line) => lines.push(Line::from(line)),
                 _ => (),
             }
         }
