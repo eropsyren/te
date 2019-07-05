@@ -1,5 +1,4 @@
 mod config;
-mod line;
 mod terminal;
 mod text;
 

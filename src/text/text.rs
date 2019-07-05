@@ -5,7 +5,7 @@ use std::io::BufReader;
 use std::iter::IntoIterator;
 use std::ops::Deref;
 
-use crate::line::Line;
+use crate::text::line::Line;
 
 pub struct Text {
     lines: Vec<Line>,
