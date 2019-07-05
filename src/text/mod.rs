@@ -1,4 +1,3 @@
-mod cursor;
 mod line;
 mod text;
 
