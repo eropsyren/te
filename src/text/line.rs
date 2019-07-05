@@ -8,9 +8,11 @@ pub struct Line {
 
 impl Line {
     pub fn empty() -> Line {
-        Line {
-            content: String::with_capacity(DEFAULT_LINE_LENGTH),
-        }
+        let mut content = String::with_capacity(DEFAULT_LINE_LENGTH);
+
+        content.push('\0');
+
+        Line { content }
     }
 
     pub fn get_content(&self) -> &str {
